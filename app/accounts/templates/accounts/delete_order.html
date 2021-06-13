@@ -4,13 +4,22 @@
 
 {% block content %}
 
-<p>Are you sure you want to delete {{item}}</p>
+<br>
+<div class="row">
+	<div class="col-md-6">
+		<div class="card card-body">
 
-<form action="{% url 'delete_order' item.id%}", method="POST">
-	{% csrf_token %}
+			<p>Are you sure you want to delete {{item}}</p>
 
-	<input type="submit" name="No" value="No">
-	<input type="submit" name="Yes" value="Yes">
-</form>
+			<form action="{% url 'delete_order' item.id%}", method="POST">
+				{% csrf_token %}
+
+				<input class="btn btn-md btn-warning" type="submit" name="No" value="No">
+				<input class="btn btn-md btn-danger" type="submit" name="Yes" value="Yes">
+			</form>
+
+		</div>
+	</div>
+</div>
 
 {% endblock content %}
