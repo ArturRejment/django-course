@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.forms import inlineformset_factory
+from django.contrib.auth.forms import UserCreationForm
 from .models import *
 from .forms import *
 from .filters import *
@@ -106,3 +107,21 @@ def deleteOrder(request, **kwargs):
 
     context = {'item': order}
     return render(request, 'accounts/delete_order.html', context)
+
+
+def registerPage(request):
+    form = CreateUserForm()
+
+    if request.method == "POST":
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+
+
+    context = {'form':form}
+    return render(request, 'accounts/register.html', context)
+
+def loginPage(request):
+    context = {}
+    return render(request, 'accounts/login.html', context)
