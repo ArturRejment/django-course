@@ -4,12 +4,13 @@ from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 from .filters import *
 # Create your views here.
 
-
+@login_required(login_url = 'login')
 def dashboard(request):
 
     orders = Order.objects.all()
@@ -30,7 +31,7 @@ def dashboard(request):
     }
     return render(request, 'accounts/dashboard.html', context)
 
-
+@login_required(login_url = 'login')
 def customer(request, **kwargs):
 
     customer = Customer.objects.get(id = kwargs['id'])
@@ -50,7 +51,7 @@ def customer(request, **kwargs):
 
     return render(request, 'accounts/customer.html', context)
 
-
+@login_required(login_url = 'login')
 def products(request):
 
     products = Product.objects.all()
@@ -61,7 +62,7 @@ def products(request):
 
     return render(request, 'accounts/products.html', context)
 
-
+@login_required(login_url = 'login')
 def createOrder(request, **kwargs):
     OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'), extra=5)
 
@@ -81,6 +82,7 @@ def createOrder(request, **kwargs):
     context = {'formset': formSet}
     return render(request, 'accounts/order_form.html', context)
 
+@login_required(login_url = 'login')
 def updateOrder(request, **kwargs):
 
     order = Order.objects.get(id = kwargs['id'])
@@ -95,7 +97,7 @@ def updateOrder(request, **kwargs):
     context = {'form': form}
     return render(request, 'accounts/order_form.html', context)
 
-
+@login_required(login_url = 'login')
 def deleteOrder(request, **kwargs):
 
     order = Order.objects.get(id = kwargs['id'])
@@ -112,38 +114,49 @@ def deleteOrder(request, **kwargs):
 
 
 def registerPage(request):
-    form = CreateUserForm()
 
-    if request.method == "POST":
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            user = form.cleaned_data.get('username')
-            messages.success(request, 'User ' + user + ' created!')
-            return redirect('login')
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
+    else:
+
+        form = CreateUserForm()
+
+        if request.method == "POST":
+            form = CreateUserForm(request.POST)
+            if form.is_valid():
+                form.save()
+                user = form.cleaned_data.get('username')
+                messages.success(request, 'User ' + user + ' created!')
+                return redirect('login')
 
 
-    context = {'form':form}
-    return render(request, 'accounts/register.html', context)
+        context = {'form':form}
+        return render(request, 'accounts/register.html', context)
 
 def loginPage(request):
 
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.user.is_authenticated:
+        return redirect('dashboard')
 
-        user = authenticate(request, username=username, password=password)
+    else:
 
-        if user is not None:
-            login(request, user)
-            return redirect('dashboard')
+        if request.method == "POST":
+            username = request.POST.get('username')
+            password = request.POST.get('password')
 
-        else:
-            messages.info(request, 'Username or password is incorrect')
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('dashboard')
+
+            else:
+                messages.info(request, 'Username or password is incorrect')
 
 
-    context = {}
-    return render(request, 'accounts/login.html', context)
+        context = {}
+        return render(request, 'accounts/login.html', context)
 
 
 def logoutPage(request):
