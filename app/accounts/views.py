@@ -112,6 +112,10 @@ def deleteOrder(request, **kwargs):
     context = {'item': order}
     return render(request, 'accounts/delete_order.html', context)
 
+def userPage(request):
+    context = {}
+    return render(request, 'accounts/user.html', context)
+
 
 def registerPage(request):
 
