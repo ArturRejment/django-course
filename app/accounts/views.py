@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from .decorators import unauthenticated_user
 from .models import *
 from .forms import *
 from .filters import *
@@ -117,50 +118,43 @@ def userPage(request):
     return render(request, 'accounts/user.html', context)
 
 
+@unauthenticated_user
 def registerPage(request):
 
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+    form = CreateUserForm()
 
-    else:
-
-        form = CreateUserForm()
-
-        if request.method == "POST":
-            form = CreateUserForm(request.POST)
-            if form.is_valid():
-                form.save()
-                user = form.cleaned_data.get('username')
-                messages.success(request, 'User ' + user + ' created!')
-                return redirect('login')
+    if request.method == "POST":
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            user = form.cleaned_data.get('username')
+            messages.success(request, 'User ' + user + ' created!')
+            return redirect('login')
 
 
-        context = {'form':form}
-        return render(request, 'accounts/register.html', context)
+    context = {'form':form}
+    return render(request, 'accounts/register.html', context)
 
+
+@unauthenticated_user
 def loginPage(request):
 
-    if request.user.is_authenticated:
-        return redirect('dashboard')
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-    else:
+        user = authenticate(request, username=username, password=password)
 
-        if request.method == "POST":
-            username = request.POST.get('username')
-            password = request.POST.get('password')
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
 
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-                return redirect('dashboard')
-
-            else:
-                messages.info(request, 'Username or password is incorrect')
+        else:
+            messages.info(request, 'Username or password is incorrect')
 
 
-        context = {}
-        return render(request, 'accounts/login.html', context)
+    context = {}
+    return render(request, 'accounts/login.html', context)
 
 
 def logoutPage(request):
