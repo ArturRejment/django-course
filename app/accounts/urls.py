@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('customer/<int:id>', views.customer, name='customer'),
     path('products/', views.products, name='products'),
+    path('account/', views.accountSettings, name='account'),
 
     path('create_order/<int:id>', views.createOrder, name='create_order'),
     path('update_order/<int:id>', views.updateOrder, name='update_order'),
