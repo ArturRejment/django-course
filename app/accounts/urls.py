@@ -18,3 +18,11 @@ urlpatterns = [
     path('update_order/<int:id>', views.updateOrder, name='update_order'),
     path('delete_order/<int:id>', views.deleteOrder, name='delete_order'),
 ]
+
+
+'''
+TODO: 1 - Submit email form                         //PasswordResetView.as_view()
+TODO: 2 - Email sent success message                //PasswordResetDoneView.as_view()
+TODO: 3 - Link to password Rest form in email       //PasswordResetConfirmView.as_view()
+TODO: 4 - Password successfully changed message     // PasswordResetCompleteView.as_view()
+'''
